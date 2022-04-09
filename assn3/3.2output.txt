@@ -1,0 +1,16 @@
+Using LogisticRegression
+n    | acc
+-----|--------------------
+500  | 0.6807887023714362
+1000 | 0.695046007993308
+1500 | 0.6991909542840433
+2000 | 0.6982272773849779
+2500 | 0.6954314720812182
+3000 | 0.7027057883320014
+3500 | 0.7065019978205593
+4000 | 0.706534347209692
+4500 | 0.7083620333379254
+5000 | 0.7119396360408344
+5500 | 0.71193481386803
+
+As the number of samples increases, the accuracy of LogisticRegression increases over the long term. It seems to increase very fast between n=500 and n=1000, and then either increase moderately or decrease very slightly over the subsequent intervals of n-values. It makes sense that the accuracy would be affected more significantly with fewer samples because that means more variability in statistics. The slight decreases in accuracy between certain n-values could be occuring because many  tweets in that interval contain words (or a combination thereof) that the classifier isn't as familiar with or hasn't seen before. Once it has enough examples to draw from, the classifier is more likely to make correct decisions when similar tweets come up in the future; this explains why the increases between n-values are generally more extreme than the decreases.

@@ -1,0 +1,81 @@
+## Question 3
+
+bprudhomme@kthompson:~$ cd cs366/assn2
+bprudhomme@kthompson:~/cs366/assn2$ python3 whosaid.py
+1. Loading Austen and Melville sentences...
+2. Discarding short sentences and labeling...
+3. Joining the two author sentence lists...
+4. Sentence stats:
+ # of total sentences: 17152
+ # of Austen sentences: 7563
+ # of Melville sentences: 9589
+5. Shuffling...
+6. Partitioning...
+ # of test sentences: 1000
+ # of devtest sentences: 1000
+ # of training sentences: 15152
+7. Defining a feature-generator function...
+NOTE: Top 35 proper nouns have been neutralized.
+8. Generating feature sets...
+9. Training...
+10. Testing...
+ Accuracy score: 0.938
+11. Sub-dividing development testing set...
+12. Sample correct and incorrect predictions from dev-test set:
+-------
+real=austen   guess=austen  
+Now , however , I see nothing in it but a very natural and consistent degree of discretion .
+-------
+real=melville guess=melville
+and every year importing into our harbors a well reaped harvest of $ 7 , 000 , 000 .
+-------
+real=austen   guess=melville
+What an air of probability sometimes runs through a dream !
+-------
+real=melville guess=austen  
+So Ahab .
+-------
+
+13. Looking up 40 most informative features...
+Most Informative Features
+           contains-miss = 1              austen : melvil =    381.7 : 1.0
+           contains-thou = 1              melvil : austen =    105.7 : 1.0
+        contains-captain = 1              melvil : austen =     83.9 : 1.0
+             contains-ye = 1              melvil : austen =     72.9 : 1.0
+            contains-mrs = 1              austen : melvil =     67.6 : 1.0
+          contains-smith = 1              austen : melvil =     64.8 : 1.0
+         contains-martin = 1              austen : melvil =     58.9 : 1.0
+         contains-nobody = 1              austen : melvil =     56.3 : 1.0
+           contains-feet = 1              melvil : austen =     54.3 : 1.0
+       contains-isabella = 1              austen : melvil =     47.9 : 1.0
+   contains-acquaintance = 1              austen : melvil =     46.2 : 1.0
+        contains-herself = 1              austen : melvil =     45.3 : 1.0
+           contains-fish = 1              melvil : austen =     41.4 : 1.0
+          contains-marry = 1              austen : melvil =     41.1 : 1.0
+      contains-agreeable = 1              austen : melvil =     39.4 : 1.0
+        contains-manners = 1              austen : melvil =     39.4 : 1.0
+           contains-land = 1              melvil : austen =     39.1 : 1.0
+         contains-wished = 1              austen : melvil =     36.9 : 1.0
+      contains-happiness = 1              austen : melvil =     33.8 : 1.0
+         contains-waters = 1              melvil : austen =     32.3 : 1.0
+      contains-extremely = 1              austen : melvil =     31.3 : 1.0
+             contains-"' = 1              melvil : austen =     31.2 : 1.0
+           contains-dear = 1              austen : melvil =     30.6 : 1.0
+             contains-st = 1              melvil : austen =     28.1 : 1.0
+            contains-thy = 1              melvil : austen =     26.9 : 1.0
+       contains-pleasure = 1              austen : melvil =     26.4 : 1.0
+       contains-daughter = 1              austen : melvil =     25.7 : 1.0
+          contains-devil = 1              melvil : austen =     25.4 : 1.0
+          contains-maple = 1              austen : melvil =     25.0 : 1.0
+        contains-further = 1              melvil : austen =     24.4 : 1.0
+          contains-green = 1              melvil : austen =     24.4 : 1.0
+            contains-sea = 1              melvil : austen =     24.2 : 1.0
+         contains-vessel = 1              melvil : austen =     23.9 : 1.0
+           contains-dead = 1              melvil : austen =     23.8 : 1.0
+           contains-iron = 1              melvil : austen =     23.8 : 1.0
+          contains-white = 1              melvil : austen =     23.3 : 1.0
+           contains-pain = 1              austen : melvil =     23.3 : 1.0
+         contains-robert = 1              austen : melvil =     23.3 : 1.0
+             contains-mr = 1              austen : melvil =     23.0 : 1.0
+           contains-bone = 1              melvil : austen =     22.8 : 1.0
+

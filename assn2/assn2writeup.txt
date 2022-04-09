@@ -1,0 +1,82 @@
+1. Classifier accuracy
+
+The classifier accuracy is 95.1%. This is about what I expected because these two novels have very contrasting settings and themes.
+
+2. Features
+
+a) The gen_feats() function returns a vector of features indicating if specific words appear in a text, each named "contains-(word)."
+b) I notice that the most informative features tend to be articles, pronouns, and character names. The words for which Austen is most likely include pronouns like "miss" and "mrs," character names like "frank," "smith," "martin," and "isabella," and words that pertain to romance and civilized life like "acquaintance," "marry," and "agreeable." In contrast, the words for which Melville is most likely include several Old English articles like "thou," and "ye," and many words describing nature and the sea. One slightly surprising entry is "maple," which is more likely to be Austen even though it is something in nature.
+
+3. Main character names
+
+b) The classifier now has an accuracy of 93.8%. This is not as much of a degradation as I expected seeing that many of the most informative features were formerly character names in Emma.
+
+4. Trying out sentences
+
+Sent1 got assigned to Austen, which was expected since it's from another work of hers. Sent2 got assigned to Melville, which was a little bit more unexpected but still understandable considering that like Moby Dick, the adventure in Alice in Wonderland is more physical than romantic (like Austen's novels).
+
+5. Label probabilities for a sentence
+
+a) P(austen | sent1) = 96.49%
+   P(melville | sent1) = 3.51%
+b) P(austen | sent2) = 40.14%
+   P(melville | sent2) = 59.86%
+c) The classifier is very confident that sent1 is Austen, but only fairly confident that sent2 is Melville.
+
+6. Trying out made-up sentences
+
+a) P(melville | sent3) = 55.08%, P(austen | sent3) = 44.92%. This is surprising because this sentence sounds like something someone would say about a recent development in a relationship. Maybe it's being classified as Melville because there are more female characters in Emma and more male characters in Moby Dick.
+P(austen | sent4) = 93.14%, P(melville | sent4) = 6.86%. As I suspected, gender seems to make a big difference - most of Austen's characters are probably female and most of Melville's characters are probably male.
+b) P(melville | sent5) = 55.97%, P(austen | sent3) = 44.03%. If neither word appeared in the training data, then this probably means that there are more Melville sentences than Austen sentences in the training data.
+
+7. Base probabilities
+
+a) There are 15,152 total sentences in the training data.
+b) There are 6,672 Austen sentences in the training data.
+c) There are 8,480 Melville sentences in the training data.
+d) P(austen) = 6,672/15,152 = 44.03%. P(melville) = 8,480/15,152 = 55.97%.
+e) These are exactly the same probabilities that the classifier gave sent5.
+
+8. Calculating odds ratio
+
+a. 927 Austen sentences contain the word "very."
+b. 272 Melville sentences contain the word "very."
+c) P(very | austen) = 927/6,672 =~ 13.89%.
+d) P(very | melville) = 272/8480 =~ 3.21%.
+e) Odds ratio = austen : melville =~ (13.89%) : (3.21%) = 4.33 : 1.0
+
+9. Feature weights in model
+
+The weights of "very" are 0.0321 for Melville and 0.13899 for Austen, which match up with my answers for 8c and 8d.
+
+10. Zero counts and feature weights
+
+a) The weights of "whale" and "ahab" for Melville are 0.1141 and 0.0499 respectively, and are 7.492...e-05 (very small) for Austen.
+b) The weights of "housekeeper" and "emma" for Austen are 0.0018 and 0.1099 respectively, and are 5.895...e-05 (very small) for Melville.
+c) The word "invitation" occurs only in Austen's work, and has a weight of 0.0029 for her. The word "harpoon" occurs only in Melville's work, and has a weight of 0.0072 for him. Both have the same very small weights (7.492...e-05 for Austen and 5.895...e-05 for Melville) for the other author.
+d) The feature weights of "cautiously" are very small for both Austen and Melville, yet are not so small that they get denoted with e-05. The weights of the words I found above are likely equal to the weights of "cautiously" multiplied by the number of occurrences of these words.
+e) A KeyError occurs when trying to use look up "contains-internet", because neither Austen's nor Melville's works contain "internet" and so their feature lists don't include the property.
+f) P (austen | "She hates the Internet") = 89.95%, and P (austen | "She hates the") = 89.95% as well. This demonstrates that the classifier completely disregards words it never saw in the training data.
+
+11. Combining feature weights
+
+a) P(austen) = 0.4403
+b) P(he | austen) = 0.1688
+c) P(sent3, austen) = P(austen)*P(he|austen)*P(knows|austen)*P(the|austen)*P(truth|austen)=4.314839275539011e-07
+d) P(sent3, austen) = P(melville)*P(he|melville)*P(knows|melville)*P(the|melville)*P(truth|melville)=5.290609490934476e-07
+e) P(sent3) = 4.314839275539011e-07+5.290609490934476e-07=~9.6054...e-07
+f) P(austen|sent3)=0.44920746343464674
+g) This is the same result as 6a.
+
+12. Performance on the development-test data
+
+a) len(aa)+len(mm)=954 sentences were correctly labeled.
+b) whosaid's accuracy on the devtest data is 954/1000 = 95.4%, which is very close to its 95.1% accuracy on the test data.
+c) The classifier labeled 465/1000 = 46.5% of the devtest sentences as Austen and 535/1000=53.5% as Melville. The uneven distribution is probably because the data contains more Melville than Austen sentences.
+d) 94.62% of the classifier's Austen rulings are correct.
+e) 96.07% of the classifier's Melville rulings are correct.
+
+13. Error analysis
+
+a) A lot of these sentences sould like they could come from either author, but there are a few that mention "literature," "the Church," and other concepts that sound like Austen to me.
+b) The sentence that was judged Melville with the most confidence (99.20%) is "It is a sort of prologue to the play, a motto to the chapter; and will be soon followed by matter-of-fact prose." The sentende that was judged Melville with the least confidence (55.78%) is "Come, he knows himself there."

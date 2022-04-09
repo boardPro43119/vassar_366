@@ -1,0 +1,81 @@
+!!!english.lexc!!!
+! Benjamin Prud'homme, March 4, 2021, bprudhomme@vassar.edu
+
+Multichar_Symbols +N +V +PastPart +Past +PresPart +3P +Sg +Pl +Adj +Comp +Supl +Adv
+
+LEXICON Root
+
+Noun 	  ;
+Verb 	  ;
+Adjective ;
+
+LEXICON Noun
+
+cat  	Ninf;
+city 	Ninf;
+fox     Ninf;
+panic	Ninf;
+try  	Ninf;
+watch 	Ninf;
+panda 	Ninf;
+bus   	Ninf;
+library	Ninf;
+mouse	Ninf;
+child	Ninf;
+cactus  Ninf;
+octopus Ninf;
+
+LEXICON Verb
+
+beg     Vinf;
+fox     Vinf;
+make    Vinf;
+panic   Vinf;
+try     Vinf;
+watch   Vinf;
+walk    Vinf;
+debate	Vinf;
+study	Vinf;
+stop	Vinf;
+nod	Vinf;
+fold	Vinf;
+write	Vinf;
+drink	Vinf;
+sneak	Vinf;
+
+LEXICON Adjective
+
+slow		Ainf;
+cool		Ainf;
+fine		Ainf;
+beautiful	A3inf;
+excellent	A3inf;
+
+LEXICON Ninf
+
++N+Sg:0   #;
++N+Pl:^s  #;
+
+LEXICON Vinf
+
++V:0             #;
++V+3P+Sg:^s      #;
++V+Past:^ed      #;
++V+PastPart:^ed  #;
++V+PresPart:^ing #;
+^able:^able	 A3inf;
+
+LEXICON Ainf
+
++Adj:0		#;
++Adj+Comp:^er	#;
++Adj+Supl:^est	#;
+^ly:^ly		AVinf;
+
+LEXICON A3inf
+
++Adj:0		#;
+^ly:^ly		AVinf;
+
+LEXICON AVinf
++Adv:0		#;

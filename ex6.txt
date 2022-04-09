@@ -1,0 +1,121 @@
+bprudhomme@mote01:~$ python3
+Python 3.6.9 (default, Jan 26 2021, 15:33:00) 
+[GCC 8.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import nltk
+>>> nltk.download("punkt")
+[nltk_data] Downloading package punkt to /home/bprudhomme/nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+True
+>>> from nltk import word_tokenize
+>>> from gensim.models import word2vec
+>>> from gensim.models import KeyedVectors
+>>> goog_vecs = KeyedVectors.load_word2vec_format("/home/cs366/data/GoogleNews-vectors-negative300.bin", binary=True)
+## Example of expected similarities ("american_idol" is similar to singers)
+>>> goog_vecs.most_similar("american_idol")
+[('paula', 0.6941510438919067), ('miley_cyrus', 0.6805046796798706), ('taylor_swift', 0.6757043600082397), ('lady_gaga', 0.6736352443695068), ('beyonce', 0.6654991507530212), ('britney', 0.6603589653968811), ('miley', 0.656063437461853), ('selena', 0.6545336246490479), ('oprah', 0.653801441192627), ('adam_lambert', 0.6494605541229248)]
+## Example of unexpected similarities ("mix" is similar to "warring_clans_pirates", "Pabst_boxer")
+>>> goog_vecs.most_similar("mix")
+[('mixes', 0.6524839401245117), ('mixture', 0.6511691212654114), ('blend', 0.6287610530853271), ('mixing', 0.5697875618934631), ('combination', 0.5492698550224304), ('warring_clans_pirates', 0.5332624912261963), ('blended', 0.5143349170684814), ('Mixing', 0.4919358193874359), ('Pabst_boxer', 0.48657822608947754), ('blending', 0.4742608964443207)]
+## Example of expected combination ("puppy"-"dog"+"cat"="kitten")
+>>> goog_vecs.most_similar(positive=["puppy", "cat"], negative=["dog"])
+[('kitten', 0.7634989619255066), ('puppies', 0.7110899090766907), ('pup', 0.6929494142532349), ('kittens', 0.6888390779495239), ('cats', 0.6796488761901855), ('kitties', 0.6261522769927979), ('tabby', 0.6248785257339478), ('feline', 0.6239446401596069), ('beagle', 0.5984721779823303), ('tortoiseshell_cat', 0.5960987210273743)]
+## Example of unexpected combination ("puppy"-"dog"+"kangaroo"!="joey", other baby animals are more common)
+>>> goog_vecs.most_similar(positive=["puppy", "kangaroo"], negative=["dog"])
+[('koala_bear', 0.5334943532943726), ('kangaroos', 0.5068827867507935), ('marsupial', 0.4964994490146637), ('wallaby', 0.4874957799911499), ('koala', 0.47033482789993286), ('piglet', 0.46978262066841125), ('marsupials', 0.4681051969528198), ('joeys', 0.46691709756851196), ('wombat', 0.46517759561538696), ('cuddly_koala', 0.4615751802921295)]
+## Other stuff I tried
+>>> goog_vecs.most_similar("voice")
+[('voices', 0.7186164855957031), ('noticeably_hoarse', 0.5553367137908936), ('Voice', 0.5539085865020752), ('raspy_whisper', 0.548365592956543), ('thin_reedy', 0.5419344902038574), ('Streisand_fretted', 0.5285948514938354), ('genial_manner', 0.522225022315979), ('sounded_tinny', 0.5156413912773132), ('quavered', 0.508257269859314), ('mellow_baritone', 0.5062294602394104)]
+>>> goog_vecs.most_similar("king", "woman")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 553, in most_similar
+    mean.append(weight * self.word_vec(word, use_norm=True))
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 468, in word_vec
+    raise KeyError("word '%s' not in vocabulary" % word)
+KeyError: "word 'a' not in vocabulary"
+>>> goog_vecs.most_similar("fruit", "red")
+[('lol', 0.6276060938835144), ('wht', 0.6212446689605713), ('ts', 0.6161757707595825), ('tI', 0.6094062328338623), ('lmao', 0.6090704202651978), ('some1', 0.6058010458946228), ('i_dont', 0.6050111055374146), ('i_cant', 0.6024945974349976), ('ppl', 0.6000052690505981), ('becuz', 0.5983561277389526)]
+>>> goog_vecs.most_similar("king", "red")
+[('verizon', 0.3557257652282715), ('ap_***', 0.3530690670013428), ('##l_k', 0.34150052070617676), ('hmmmm', 0.33321547508239746), ('###ks', 0.32704395055770874), ('oreo', 0.3238462209701538), ('hardship_withdrawals', 0.320631742477417), ('ibanez', 0.3203088641166687), ('cpu', 0.3202592730522156), ('gramps', 0.31789860129356384)]
+>>> goog_vecs.most_similar("king", "woman")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 553, in most_similar
+    mean.append(weight * self.word_vec(word, use_norm=True))
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 468, in word_vec
+    raise KeyError("word '%s' not in vocabulary" % word)
+KeyError: "word 'a' not in vocabulary"
+>>> goog_vecs.most_similar(positive=["king", "woman"], negative=["man"])
+[('queen', 0.7118192911148071), ('monarch', 0.6189674139022827), ('princess', 0.5902431011199951), ('crown_prince', 0.5499460697174072), ('prince', 0.5377321243286133), ('kings', 0.5236844420433044), ('Queen_Consort', 0.5235945582389832), ('queens', 0.518113374710083), ('sultan', 0.5098593235015869), ('monarchy', 0.5087411999702454)]
+>>> goog_vecs.most_similar(positive=["fruit", "red"], negative=["blue"])
+[('fruits', 0.6040667295455933), ('cherries', 0.57859867811203), ('pears', 0.5631186962127686), ('grapes', 0.563002347946167), ('citrus_fruits', 0.5535787343978882), ('avocados', 0.5467195510864258), ('citrus_fruit', 0.5442036390304565), ('grape', 0.5432714223861694), ('mango', 0.542172908782959), ('pear', 0.5345315933227539)]
+>>> goog_vecs.most_similar("red")
+[('yellow', 0.751919150352478), ('blue', 0.7225173711776733), ('purple', 0.6477127075195312), ('orange', 0.6162858009338379), ('pink', 0.6084308624267578), ('participant_LOGIN', 0.5890989899635315), ('colored', 0.5796345472335815), ('crimson', 0.57732093334198), ('brown', 0.5770581960678101), ('bright_orange', 0.5687143802642822)]
+>>> goog_vecs.most_similar("reddit")
+[('retweet_button', 0.6663103103637695), ('Ma.gnolia', 0.6655329465866089), ('TechMeme', 0.6617240309715271), ('digg.com', 0.6613273620605469), ('Reddit_Digg', 0.6520460844039917), ('TwitterTwitter', 0.6511324048042297), ('digg', 0.6493878364562988), ('reblog', 0.6416275501251221), ('MyBlogLog', 0.6226954460144043), ('Digg', 0.6219328045845032)]
+>>> goog_vecs.most_similar("boy")
+[('girl', 0.8543272018432617), ('teenager', 0.7606689929962158), ('toddler', 0.7043969631195068), ('teenage_girl', 0.6851483583450317), ('man', 0.6824870109558105), ('teen_ager', 0.6499968767166138), ('son', 0.6337764263153076), ('kid', 0.63228440284729), ('youngster', 0.6183817386627197), ('stepfather', 0.5989422798156738)]
+>>> goog_vecs.most_similar("dude")
+[('guy', 0.7975314259529114), ('dudes', 0.7534066438674927), ('motherfucker', 0.7206135988235474), ('shit', 0.6915427446365356), ('fella', 0.6824806928634644), ('bro', 0.6752574443817139), ('ass', 0.6721324324607849), ('Dude', 0.6643366813659668), ('motherf_*_cker', 0.6617129445075989), ('fucking', 0.661530613899231)]
+>>> goog_vecs.most_similar("girl")
+[('boy', 0.8543272018432617), ('teenage_girl', 0.7927976250648499), ('woman', 0.7494640946388245), ('teenager', 0.717249870300293), ('schoolgirl', 0.7075953483581543), ('teenaged_girl', 0.6650916337966919), ('daughter', 0.6489864587783813), ('mother', 0.6478164196014404), ('toddler', 0.6473966836929321), ('girls', 0.6154742240905762)]
+>>> goog_vecs.most_similar("position")
+[('postion', 0.7399062514305115), ('positions', 0.7002790570259094), ('positon', 0.6090980172157288), ('posi_tion', 0.5732439160346985), ('postition', 0.5636635422706604), ('postions', 0.48729410767555237), ('posiiton', 0.47875285148620605), ('stance', 0.4757223427295685), ('Position', 0.4716626703739166), ('spot', 0.4562930464744568)]
+>>> goog_vecs.most_similar("positions")
+[('position', 0.7002789974212646), ('postions', 0.7002024054527283), ('Positions', 0.6212514638900757), ('positons', 0.6065186262130737), ('roles', 0.5732603669166565), ('posts', 0.5354496240615845), ('postion', 0.52755206823349), ('posi_tions', 0.5197848677635193), ('unfilled_positions', 0.5041182041168213), ('ambassadorial_posts', 0.5008713006973267)]
+>>> goog_vecs.most_similar("history")
+[('annals', 0.6059837341308594), ('lore', 0.5649883151054382), ('histories', 0.5634648203849792), ('storied', 0.5317221879959106), ('darkest_eras', 0.518702507019043), ('history.The', 0.4936788082122803), ('History', 0.4924328625202179), ('histroy', 0.4762229919433594), ('female_ticketmate', 0.460011750459671), ('prehistory', 0.459464967250824)]
+>>> goog_vecs.most_similar("biology")
+[('biochemistry', 0.7531106472015381), ('molecular_biology', 0.7250388860702515), ('biological_sciences', 0.7240766286849976), ('Biology', 0.720659613609314), ('physiology', 0.6860454082489014), ('science', 0.6775784492492676), ('developmental_biology', 0.6609349250793457), ('biochemistry_molecular_biology', 0.6557325124740601), ('molecular_genetics', 0.63965904712677), ('evolutionary_biology', 0.635192334651947)]
+>>> goog_vecs.most_similar("controversy")
+[('controversy_surrounding', 0.8394831418991089), ('furor', 0.8041191697120667), ('brouhaha', 0.7999990582466125), ('controversies', 0.791917622089386), ('furore', 0.7576007843017578), ('Controversy', 0.7515178322792053), ('controvery', 0.7416229248046875), ('uproar', 0.7341901659965515), ('controversey', 0.7076751589775085), ('kerfuffle', 0.6886483430862427)]
+>>> goog_vecs.most_similar("protest")
+[('protesting', 0.8390403985977173), ('protests', 0.781267523765564), ('protested', 0.6966838240623474), ('protestors', 0.6774879097938538), ('protesters', 0.6661936640739441), ('Protest', 0.6610704064369202), ('Protesting', 0.6564898490905762), ('protest_marches', 0.6458595991134644), ('Protests', 0.6420975923538208), ('demonstrators', 0.6378194093704224)]
+>>> goog_vecs.most_similar("game")
+[('games', 0.7636997699737549), ('play', 0.6501179933547974), ('match', 0.648574948310852), ('matchup', 0.6120451092720032), ('agame', 0.586314857006073), ('ballgame', 0.5731309652328491), ('thegame', 0.5718172788619995), ('opener', 0.5680000185966492), ('matches', 0.5580832958221436), ('tournament', 0.5496207475662231)]
+>>> goog_vecs.most_similar("covid")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 553, in most_similar
+    mean.append(weight * self.word_vec(word, use_norm=True))
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 468, in word_vec
+    raise KeyError("word '%s' not in vocabulary" % word)
+KeyError: "word 'covid' not in vocabulary"
+>>> goog_vecs.most_similar("vaccine")
+[('vaccines', 0.876278281211853), ('flu_vaccine', 0.8431119918823242), ('flu_vaccines', 0.8153071403503418), ('influenza_vaccine', 0.8150689601898193), ('H#N#_vaccine', 0.8139630556106567), ('swine_flu_vaccine', 0.7865129709243774), ('H#N#_vaccines', 0.7665911912918091), ('influenza_vaccines', 0.7636774778366089), ('H#N#_influenza_vaccine', 0.7475392818450928), ('smallpox_vaccine', 0.7456004023551941)]
+>>> goog_vecs.most_similar("lose")
+[('losing', 0.7463827729225159), ('lost', 0.7136348485946655), ('loses', 0.6693974733352661), ('loosing', 0.6291956901550293), ('Losing', 0.5912826061248779), ('squander', 0.5211222767829895), ('regain', 0.5195775032043457), ('looses', 0.5193758606910706), ('Lose', 0.5094931125640869), ('suffer', 0.49701765179634094)]
+>>> goog_vecs.most_similar("new_york")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 553, in most_similar
+    mean.append(weight * self.word_vec(word, use_norm=True))
+  File "/usr/local/lib/python3.6/dist-packages/gensim/models/keyedvectors.py", line 468, in word_vec
+    raise KeyError("word '%s' not in vocabulary" % word)
+KeyError: "word 'new_york' not in vocabulary"
+>>> goog_vecs.most_similar("New_York")
+[('NewYork', 0.7444177865982056), ('Manhattan', 0.6598775386810303), ('theNew_York', 0.6500561237335205), ('NY', 0.6273692846298218), ('Brooklyn', 0.6272950768470764), ('Long_Island', 0.6261755228042603), ('NYC', 0.6110411882400513), ('inNew_York', 0.6082415580749512), ('upstate', 0.6042490005493164), ('RBI_ARodriguez', 0.6038434505462646)]
+>>> goog_vecs.most_similar("Giants")
+[('Jets', 0.7187758684158325), ('San_Francisco_Giants', 0.6920552253723145), ('Mets', 0.6718872785568237), ('Cowboys', 0.6597197651863098), ('Jints', 0.6407676935195923), ('Philadelphia_Eagles', 0.6387732028961182), ('RB_Tiki_Barber', 0.6349540948867798), ('Bochy_Sabean', 0.6324464082717896), ('Seahawks', 0.626315712928772), ('Padres', 0.6257418394088745)]
+>>> goog_vecs.most_similar("pencil")
+[('pencils', 0.7586163282394409), ('crayon', 0.6657466292381287), ('without_sharpener_pointless', 0.6365124583244324), ('eraser', 0.6364375352859497), ('ballpoint_pen', 0.630744218826294), ('colored_pencils', 0.6295301914215088), ('pencil_crayons', 0.6165181994438171), ('mechanical_pencils', 0.6140224933624268), ('grease_pencil', 0.5994817614555359), ('crayons', 0.5931912660598755)]
+>>> goog_vecs.most_similar("picture")
+[('pictures', 0.6735936999320984), ('photograph', 0.6403498649597168), ('portrait', 0.6137735843658447), ('photo', 0.5958257913589478), ('photos', 0.5697057247161865), ('photographs', 0.5630465149879456), ('images', 0.5312467217445374), ('picutre', 0.5262188911437988), ('image', 0.5255694389343262), ('snapshots', 0.5192705392837524)]
+>>> goog_vecs.most_similar("touchdown")
+[('touchdown_pass', 0.8600205183029175), ('yard_touchdown', 0.8598645329475403), ('yard_TD', 0.8456447124481201), ('TD_pass', 0.8273943662643433), ('touchdowns', 0.8199628591537476), ('yard_scamper', 0.7792386412620544), ('yarder', 0.7751247882843018), ('interception', 0.773764967918396), ('yard_punt', 0.7531130313873291), ('touchdown_passes', 0.7514247298240662)]
+>>> goog_vecs.most_similar("hair")
+[('curly_hair', 0.7542630434036255), ('tresses', 0.7536026239395142), ('mane', 0.6898636817932129), ('hairdo', 0.6756652593612671), ('blonde_hair', 0.6589916944503784), ('blond_hair', 0.6555954217910767), ('gray_hair', 0.6492800712585449), ('wavy_hair', 0.645064115524292), ('hairstyle', 0.6424481868743896), ('blonde_locks', 0.6327605247497559)]
+>>> goog_vecs.most_similar("monopoly")
+[('monopolies', 0.7897247076034546), ('monopolistic', 0.7839195132255554), ('quasi_monopoly', 0.7137917280197144), ('duopoly', 0.6911016702651978), ('monopolist', 0.6557180881500244), ('monoply', 0.6067796349525452), ('monopolists', 0.5971787571907043), ('stranglehold', 0.595396876335144), ('cozy_duopoly', 0.5869930386543274), ('oligopoly', 0.5842366814613342)]
+>>> goog_vecs.most_similar(positive=["singer", "dance"], negative=["sing"])
+[('dancer', 0.6500506401062012), ('pop_diva', 0.5835057497024536), ('songstress', 0.5631839632987976), ('dancers', 0.5520546436309814), ('dance_troupe', 0.5431151390075684), ('musician', 0.527060866355896), ('pop_princess', 0.5252246856689453), ('entertainer', 0.5223991274833679), ('pop_superstar', 0.5198285579681396), ('popstar', 0.5192328691482544)]
+>>> goog_vecs.most_similar(positive=["dude", "girl"], negative=["boy"])
+[('dudes', 0.6913679838180542), ('gal', 0.6809450387954712), ('guy', 0.6719734072685242), ('babe', 0.6435847282409668), ('hottie', 0.6426003575325012), ('motherfucker', 0.6398764848709106), ('biker_dude', 0.6344082355499268), ('blonde_chick', 0.630893886089325), ('chick', 0.6246137619018555), ('motherf_**_ker', 0.622046709060669)]
+>>> goog_vecs.most_similar(positive=["president", "UK"], negative=["United_States"])
+[('chief_executive', 0.6149240732192993), ('managing_director', 0.6133632659912109), ('chairman', 0.5461510419845581), ('ceo', 0.5324665307998657), ('CEO', 0.5254367589950562), ('chariman', 0.5098929405212402), ('chaiman', 0.5002168416976929), ('chief_exective', 0.5001934766769409), ('Chief_Executive', 0.49743667244911194), ('Managing_Director', 0.4861873686313629)]
+>>> goog_vecs.most_similar("date")
+[('dates', 0.6786292195320129), ('Ligand_judgment', 0.507707953453064), ('WCDMA_3G_Nokia', 0.49409040808677673), ('Dates', 0.48478347063064575), ('Alpesh_B._Patel', 0.4793800711631775), ('SBPA_substitution', 0.4744631350040436), ('format_Domicile', 0.46318119764328003), ('Norwich_Superior_Court', 0.45550328493118286), ('visit_www.rsaconference.com', 0.45389336347579956), ('rescheduled', 0.4473426938056946)]
+>>> goog_vecs.most_similar("relationship")
+[('relationships', 0.8136740922927856), ('friendship', 0.6711819171905518), ('mutually_beneficial_relationship', 0.6462175250053406), ('ties', 0.6169061660766602), ('Relationship', 0.6096691489219666), ('realtionship', 0.607298731803894), ('partnership', 0.6067222952842712), ('relations', 0.6026005744934082), ('rela_tionship', 0.5995653867721558), ('symbiotic_relationship', 0.5941137075424194)]
+>>>  

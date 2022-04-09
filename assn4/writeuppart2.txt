@@ -1,0 +1,136 @@
+BASELINE CLASSIFIERS
+
+Random baselines: 
+hard: 1/3 = 0.33...
+interest: 1/6 = 0.166...7
+serve: 1/4 = 0.25
+
+Majority baselines:
+hard: 0.797369028386799
+interest: 0.5287162162162162
+serve: 0.4143444495203289
+
+
+NAIVE BAYES CLASSIFIERS
+
+Performance comparison:
+
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features) -> 0.8593
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_context_features) -> 0.895
+wsd_classifier(NaiveBayesClassifier.train, "interest.pos", wsd_word_features) -> 0.5443
+wsd_classifier(NaiveBayesClassifier.train, "interest.pos", wsd_context_features) -> 0.4283
+wsd_classifier(NaiveBayesClassifier.train, "serve.pos", wsd_word_features) -> 0.7386
+wsd_classifier(NaiveBayesClassifier.train, "serve.pos", wsd_context_features) -> 0.8345
+
+Write-up:
+
+Both feature representations perform quite well at disambiguating "hard," but wsd_context_features does a little better. The accuracies are much lower for "interest," and wsd_word_features does a significantly better job. Finally, the accuracies for "serve" are fairly good and wsd_context_features does a much better job.
+
+Accuracy of NB classifiers seems to be most linearly related to the words' random baselines. The order of words from best to worst accuracies as well as highest to lowest random baseline is: hard, serve, interest. Also, for the words with the lowest random baselines, wsd_context_features tends to perform better than wsd_word_features. I think this is because the more possible senses a word has, the more difficult it can be to infer its intended sense just from the words right around it, and looking at the broader context of the full sentence would be more informative. As certain words have more possible meanings than others, classifiers should be expected to have more difficulty with these words, and low accuracies should not necessarily be taken as signs that one classifer is better than another.
+
+RICH FEATURES VS SPARSE DATA
+
+Model comparison:
+
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=100, stopwords_list=[]) -> 0.8385
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=100, stopwords_list=STOPWORDS) -> 0.842
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=200, stopwords_list=[]) -> 0.8489
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=200, stopwords_list=STOPWORDS) -> 0.8501
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=300, stopwords_list=[]) -> 0.8558
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=300, stopwords_list=STOPWORDS) -> 0.8593
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=400, stopwords_list=[]) -> 0.8627
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=400, stopwords_list=STOPWORDS) -> 0.8581
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=500, stopwords_list=[]) -> 0.8685
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=500, stopwords_list=STOPWORDS) -> 0.8604
+
+After adding "harder" and "hardest" to STOPWORDS:
+
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=100, stopwords_list=STOPWORDS) -> 0.8362
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=200, stopwords_list=STOPWORDS) -> 0.8408
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=300, stopwords_list=STOPWORDS) -> 0.8512
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=400, stopwords_list=STOPWORDS) -> 0.8512
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_word_features, number=500, stopwords_list=STOPWORDS) -> 0.8512
+
+
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_context_features, distance=1) -> 0.9204
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_context_features, distance=2) -> 0.9008
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_context_features, distance=3) -> 0.895
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_context_features, distance=4) -> 0.8777
+wsd_classifier(NaiveBayesClassifier.train, "hard.pos", wsd_context_features, distance=5) -> 0.8731
+
+Write-up:
+
+For wsd_word_features, the lower number is, the worse the Naive Bayes classifier performs. Including stop words in the model improves performance when number is 300 or lower, but makes performance worse when number is 400 or higher. The versions of the models with and without stopwords both see their accuracies increase as number increases, but the latter has it happen faster.
+When adding "harder" and "hardest" to the stop word list, performance takes a significant hit, being lower than any of the models without these stop words and flattening at 0.8512 when number=300, 400,5 and 500. This was surprising to me at first, but through investigating the data, I found that instances of the word "hard" in fact *include* the comparative and superlative forms. So adding these forms to the stop word list prevents these occurrences from being recognized, thus hurting performance.
+
+For wsd_context, the performance gets worse as the distance increases. Using the stop word list makes no difference in performance.
+
+ERROR ANALYSIS
+
+hard (wsd_context_features):
+      |   H   H   H |
+      |   A   A   A |
+      |   R   R   R |
+      |   D   D   D |
+      |   1   2   3 |
+------+-------------+
+HARD1 |<643> 39  20 |
+HARD2 |   6 <73>  9 |
+HARD3 |   5  12 <60>|
+------+-------------+
+
+HARD1 is mistaken 59/702 = 8.4% of the time, HARD2 is mistaken 15/88 = 17.05% of the time, and HARD3 is mistaken 17/77 = 22.08% of the time. So the model has the hardest time identifying HARD3.
+
+HARD3 is the sense of "hard" associated with a hard physical feeling, and many of the sentences in which it occurs contain tangible things. Adding a set of tangible things to the feature representation might help improve recognition of HARD3.
+
+interest (wsd_word_features):
+           |   i   i   i   i   i   i |
+           |   n   n   n   n   n   n |
+           |   t   t   t   t   t   t |
+           |   e   e   e   e   e   e |
+           |   r   r   r   r   r   r |
+           |   e   e   e   e   e   e |
+           |   s   s   s   s   s   s |
+           |   t   t   t   t   t   t |
+           |   _   _   _   _   _   _ |
+           |   1   2   3   4   5   6 |
+-----------+-------------------------+
+interest_1 |  <1>  .   .   .  13  64 |
+interest_2 |   .  <.>  .   .   .   3 |
+interest_3 |   .   .  <3>  3   5   4 |
+interest_4 |   .   .   1  <3> 17  13 |
+interest_5 |   .   .   1   . <69> 19 |
+interest_6 |   .   1   .   .  13<241>|
+-----------+-------------------------+
+
+interest_1 is mistaken 67/78 = 85.9% of the time
+interest_2 is mistaken 3/3 = 100% of the time
+interest_3 is mistaken 12/15 = 80% of the time
+interest_4 is mistaken 31/34 = 91.18% of the time
+interest_5 is mistaken 20/89 = 22.47% of the time
+interest_6 is mistaken 14/255 = 5.49% of the time
+
+The first four senses are very innacurately recognized, but interest_1 seems to be the hardest to recognize given how many failures are present. For all misrecognitions of interest_1, the sense is instead guessed to be one of the two pertaining to finances - indeed, many of the sentences in errors.txt include words related to these topics, such as "investor", "market", "bank", "stock", etc. However, there are also several words that commonly come before "interest" in these sentences that mean to increase or decrease one's interest in this sense of the word, including "express", "grow", "continue", "spur", "spark", etc. Adding a specific list of such words to the feature representation might help improve recognition of interest_1.
+
+
+serve (wsd_context_features):
+        |   S   S         |
+        |   E   E   S   S |
+        |   R   R   E   E |
+        |   V   V   R   R |
+        |   E   E   V   V |
+        |   1   1   E   E |
+        |   0   2   2   6 |
+--------+-----------------+
+SERVE10 |<311> 19   9  32 |
+SERVE12 |  11<213> 19   4 |
+ SERVE2 |   2  28<134>  5 |
+ SERVE6 |   4   4   8 <73>|
+--------+-----------------+
+
+SERVE10 is mistaken 60/371 = 16.17% of the time
+SERVE12 is mistaken 34/247 = 13.77% of the time
+SERVE2  is mistaken 35/169 = 20.71% of the time
+SERVE6  is mistaken 16/89  = 17.98% of the time
+
+The four senses of "serve" are pretty close in their accuracy, with SERVE2 barely being the hardest. The most notable sight in the confusion matrix is that SERVE12 and SERVE2 are quite often mistaken for each other. Indeed, these two senses are very similar. But since SERVE12 means serving a specific function or duty, it might be good to include occupations in the feature representation to improve accuracy.  

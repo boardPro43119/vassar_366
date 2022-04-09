@@ -1,0 +1,376 @@
+bprudhomme@kthompson:~$ cd cs366/assn2
+bprudhomme@kthompson:~/cs366/assn2$ python3
+Python 3.6.9 (default, Jan 26 2021, 15:33:00) 
+[GCC 8.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import nltk
+i>>> import random
+>>> a_sents_all = nltk.corpus.gutenberg.sents("austen-emma.txt")
+>>> m_sents_all = nltk.corpus.gutenberg.sents("melville-moby_dick.txt")
+>>> a_sents = [(s, "austen") for s in a_sents_all if len(s) > 2]
+>>> m_sents = [(s, "melville") for s in m_sents_all if len(s) > 2]
+>>> sents = a_sents + m_sents
+>>> random.Random(10).shuffle(sents)
+>>> test_sents = sents[0:1000]
+>>> devtest_sents = sents[1000:2000]
+>>> train_sents = sents[2000:]
+>>> main_characters = {
+...     "Emma",
+...     "Harriet",
+...     "Ahab",
+...     "Weston",
+...     "Knightley",
+...     "Elton",
+...     "Woodhouse",
+...     "Jane",
+...     "Stubb",
+...     "Queequeg",
+...     "Fairfax",
+...     "Churchill",
+...     "Frank",
+...     "Starbuck",
+...     "Pequod",
+...     "Hartfield",
+...     "Bates",
+...     "Highbury",
+...     "Perry",
+...     "Bildad",
+...     "Peleg",
+...     "Pip",
+...     "Cole",
+...     "Goddard",
+...     "Campbell",
+...     "Donwell",
+...     "Dixon",
+...     "Taylor",
+...     "Tashtego",
+... }
+>>> no_char_name = False
+>>> def gen_feats(sent):
+...     features = {}
+...     for w in sent:
+...         if no_char_name:
+...             if w in main_characters:
+...                 w = "MontyPython"
+...         features["contains-" + w.lower()] = 1
+...     return features
+... 
+>>> test_feats = [(gen_feats(sent), author) for (sent, author) in test_sents]
+>>> devtest_feats = [(gen_feats(sent), author) for (sent, author) in devtest_sents]
+>>> train_feats = [(gen_feats(sent), author) for (sent, author) in train_sents]
+>>> whosaid = nltk.NaiveBayesClassifier.train(train_feats)
+>>> accuracy = nltk.classify.accuracy(whosaid, test_feats)
+>>> accuracy ## Question 1
+0.951
+>>> aa, mm, am, ma = [], [], [], []
+>>> for (sent, auth) in devtest_sents:
+...     guess = whosaid.classify(gen_feats(sent))
+...     if auth == "austen" and guess == "austen":
+...         aa.append((auth, guess, sent))
+...     if auth == "melville" and guess == "melville":
+...         mm.append((auth, guess, sent))
+...     if auth == "austen" and guess == "melville":
+...         am.append((auth, guess, sent))
+...     if auth == "melville" and guess == "austen":
+...         ma.append((auth, guess, sent))
+... 
+>>> whosaid.show_most_informative_features(40) ## Question 2b
+Most Informative Features
+           contains-miss = 1              austen : melvil =    381.7 : 1.0
+          contains-frank = 1              austen : melvil =    147.9 : 1.0
+           contains-thou = 1              melvil : austen =    105.7 : 1.0
+        contains-captain = 1              melvil : austen =     83.9 : 1.0
+             contains-ye = 1              melvil : austen =     72.9 : 1.0
+            contains-mrs = 1              austen : melvil =     67.6 : 1.0
+          contains-smith = 1              austen : melvil =     64.8 : 1.0
+         contains-martin = 1              austen : melvil =     58.9 : 1.0
+         contains-nobody = 1              austen : melvil =     56.3 : 1.0
+           contains-feet = 1              melvil : austen =     54.3 : 1.0
+       contains-isabella = 1              austen : melvil =     47.9 : 1.0
+   contains-acquaintance = 1              austen : melvil =     46.2 : 1.0
+        contains-herself = 1              austen : melvil =     45.3 : 1.0
+           contains-fish = 1              melvil : austen =     41.4 : 1.0
+          contains-marry = 1              austen : melvil =     41.1 : 1.0
+      contains-agreeable = 1              austen : melvil =     39.4 : 1.0
+        contains-manners = 1              austen : melvil =     39.4 : 1.0
+           contains-land = 1              melvil : austen =     39.1 : 1.0
+         contains-wished = 1              austen : melvil =     36.9 : 1.0
+      contains-happiness = 1              austen : melvil =     33.8 : 1.0
+          contains-perry = 1              austen : melvil =     33.8 : 1.0
+         contains-waters = 1              melvil : austen =     32.3 : 1.0
+      contains-extremely = 1              austen : melvil =     31.3 : 1.0
+             contains-"' = 1              melvil : austen =     31.2 : 1.0
+           contains-dear = 1              austen : melvil =     30.6 : 1.0
+             contains-st = 1              melvil : austen =     28.1 : 1.0
+            contains-thy = 1              melvil : austen =     26.9 : 1.0
+       contains-pleasure = 1              austen : melvil =     26.4 : 1.0
+       contains-daughter = 1              austen : melvil =     25.7 : 1.0
+          contains-devil = 1              melvil : austen =     25.4 : 1.0
+          contains-maple = 1              austen : melvil =     25.0 : 1.0
+        contains-further = 1              melvil : austen =     24.4 : 1.0
+          contains-green = 1              melvil : austen =     24.4 : 1.0
+            contains-sea = 1              melvil : austen =     24.2 : 1.0
+         contains-vessel = 1              melvil : austen =     23.9 : 1.0
+           contains-dead = 1              melvil : austen =     23.8 : 1.0
+           contains-iron = 1              melvil : austen =     23.8 : 1.0
+          contains-white = 1              melvil : austen =     23.3 : 1.0
+           contains-pain = 1              austen : melvil =     23.3 : 1.0
+         contains-robert = 1              austen : melvil =     23.3 : 1.0
+## Question 4
+>>> sent1 = "Anne was to leave them on the morrow, an event which they all dreaded."
+>>> sent2 = "So Alice began telling them her adventures from the time when she first saw the White Rabbit."
+>>> sent1_toks = nltk.word_tokenize(sent1.lower())
+>>> sent2_toks = nltk.word_tokenize(sent2.lower())
+>>> sent1_feats = gen_feats(sent1_toks)
+>>> sent2_feats = gen_feats(sent2_toks)
+>>> whosaid.classify(sent1_feats)
+'austen'
+>>> whosaid.classify(sent2_feats)
+'melville'
+## Question 5
+>>> whosaid.prob_classify(sent1_feats).prob('austen')
+0.9649058436514013
+>>> whosaid.prob_classify(sent1_feats).prob('melville')
+0.035094156348597375
+>>> whosaid.prob_classify(sent2_feats).prob('austen')
+0.4014435223953792
+>>> whosaid.prob_classify(sent2_feats).prob('melville')
+0.5985564776046165
+## Question 6
+>>> sent3 = "He knows the truth"
+>>> sent4 = "She knows the truth"
+>>> sent5 = "blahblahblah blahblah"
+>>> sent3_toks = nltk.word_tokenize(sent3.lower())
+>>> sent4_toks = nltk.word_tokenize(sent4.lower())
+>>> sent5_toks = nltk.word_tokenize(sent5.lower())
+>>> sent3_feats = gen_feats(sent3_toks)
+>>> sent4_feats = gen_feats(sent4_toks)
+>>> sent5_feats = gen_feats(sent5_toks)
+>>> whosaid.classify(sent3_feats)
+'melville'
+>>> whosaid.prob_classify(sent3_feats).prob('austen')
+0.44921141639835876
+>>> whosaid.prob_classify(sent3_feats).prob('melville')
+0.5507885836016423
+>>> whosaid.classify(sent4_feats)
+'austen'
+>>> whosaid.prob_classify(sent4_feats).prob('austen')
+0.9314339848201395
+>>> whosaid.prob_classify(sent4_feats).prob('melville')
+0.06856601517985973
+>>> whosaid.classify(sent5_feats)
+'melville'
+>>> whosaid.prob_classify(sent5_feats).prob('melville')
+0.5596581535009568
+>>> whosaid.prob_classify(sent5_feats).prob('austen')
+0.44034184649904307
+## Question 7a-c (7d done on paper)
+>>> len(train_sents) ## 7a
+15152
+>>> len([(sent, author) for (sent, author) in train_sents if author=="austen"]) ## 7b
+6672
+>>> len([(sent, author) for (sent, author) in train_sents if author=="melville"]) ## 7c
+8480
+## Question 8a-b (c-e done on paper)
+>>> len([sent for sent in train_sents if ('very' in [w.lower() for w in sent[0]]) and sent[1] == "austen"])
+927
+>>> len([sent for sent in train_sents if ('very' in [w.lower() for w in sent[0]]) and sent[1] == "melville"])
+272
+## Question 9
+>>> whosaid.feature_weights('contains-very', 1)
+{'melville': 0.0321306449711119, 'austen': 0.13899295669114342}
+## Question 10a
+>>> whosaid.feature_weights('contains-whale', 1)
+{'melville': 0.11407852847541564, 'austen': 7.49288176232579e-05}
+>>> whosaid.feature_weights('contains-ahab', 1)
+{'melville': 0.04993514915693904, 'austen': 7.49288176232579e-05}
+## Question 10b
+>>> whosaid.feature_weights('contains-housekeeper', 1)
+{'melville': 5.895531187359981e-05, 'austen': 0.001573505170088416}
+>>> whosaid.feature_weights('contains-emma', 1)
+{'melville': 5.895531187359981e-05, 'austen': 0.10992057545331935}
+## Question 10c
+>>> len([sent for sent in train_sents if ('invitation' in [w.lower() for w in sent[0]]) and sent[1] == "melville"])
+0
+>>> len([sent for sent in train_sents if ('invitation' in [w.lower() for w in sent[0]]) and sent[1] == "austen"])
+19
+>>> whosaid.feature_weights('contains-invitation', 1)
+{'melville': 5.895531187359981e-05, 'austen': 0.0029222238873070584}
+>>> len([sent for sent in train_sents if ('harpoon' in [w.lower() for w in sent[0]]) and sent[1] == "melville"])
+61
+>>> len([sent for sent in train_sents if ('harpoon' in [w.lower() for w in sent[0]]) and sent[1] == "austen"])
+0
+>>> whosaid.feature_weights('contains-harpoon', 1)
+{'melville': 0.007251503360452776, 'austen': 7.49288176232579e-05}
+## Question 10d
+>>> whosaid.feature_weights('contains-cautiously', 1)
+{'melville': 0.00017686593562079943, 'austen': 0.0002247864528697737}
+## Question 10e
+>>> whosaid.feature_weights('contains-internet', 1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python3.6/dist-packages/nltk/classify/naivebayes.py", line 268, in feature_weights
+    wdict[l] = cpdist[l, fname].prob(fval)
+KeyError: ('melville', 'contains-internet')
+## Question 10f
+>>> sent6 = "She hates the Internet"                   
+>>> sent7 = "She hates the"
+>>> sent6_toks = nltk.word_tokenize(sent6.lower())
+>>> sent7_toks = nltk.word_tokenize(sent7.lower())
+>>> sent6_feats = gen_feats(sent6_toks)
+>>> sent7_feats = gen_feats(sent7_toks)
+>>> whosaid.prob_classify(sent6_feats).prob('austen')
+0.899546491362117
+>>> whosaid.prob_classify(sent7_feats).prob('austen')
+0.899546491362117
+## Question 11b
+>>> whosaid.feature_weights('contains-he', 1)['austen']
+0.16881462610520007
+## Question 11c
+>>> 6672/15152*whosaid.feature_weights('contains-he', 1)['austen']*whosaid.feature_weights('contains-knows', 1)['austen']*whosaid.feature_weights('contains-the', 1)['austen']*whosaid.feature_weights('contains-truth', 1)['austen']
+4.314839275539011e-07
+## Question 11d
+>>> 8480/15152*whosaid.feature_weights('contains-he', 1)['melville']*whosaid.feature_weights('contains-knows', 1)['melville']*whosaid.feature_weights('contains-the', 1)['melville']*whosaid.feature_weights('contains-truth', 1)['melville']
+5.290609490934476e-07
+## Save results of 11c-11d in variables
+>>> psent3austen = 6672/15152*whosaid.feature_weights('contains-he', 1)['austen']*whosaid.feature_weights('contains-knows', 1)['austen']*whosaid.feature_weights('contains-the', 1)['austen']*whosaid.feature_weights('contains-truth', 1)['austen']
+>>> pssent3melville = 8480/15152*whosaid.feature_weights('contains-he', 1)['melville']*whosaid.feature_weights('contains-knows', 1)['melville']*whosaid.feature_weights('contains-the', 1)['melville']*whosaid.feature_weights('contains-truth', 1)['melville']
+## Question 11e
+>>> psent3 = psent3austen + pssent3melville
+>>> psent3
+9.605448766473486e-07
+## Question 11f
+>>> psent3austen/psent3                                
+0.44920746343464674
+## Question 12a
+>>> len(aa)+len(mm)
+954
+## Question 12c
+>>> len(aa)+len(ma)
+465
+>>> len(am)+len(mm)
+535
+## Question 12d
+>>> len(aa)/(len(aa)+len(ma))
+0.946236559139785
+## Question 12e
+>>> len(mm)/(len(am)+len(mm))
+0.9607476635514018
+## Question 13
+>>> for x in am: print(" ".join(x[2]))
+... 
+" What is the matter now ?"
+Come , he knows himself there .
+there he is .
+In this age of literature , such collections on a very grand scale are not uncommon .
+This is all that I can relate of the how , where , and when .
+The stupidest fellow !
+This is what we all feel .
+Shall I call upon them ?
+It is a sort of prologue to the play , a motto to the chapter ; and will be soon followed by matter - of - fact prose ."
+shark is only one syllable .
+" Three o ' clock yesterday !
+I never knew days fly so fast .
+he is off .
+What an air of probability sometimes runs through a dream !
+And so excellent in the Church !
+" Both sir !
+My first displays the wealth and pomp of kings , Lords of the earth !
+said he , offering his hand .
+The strength of the song falls on the second ."
+And at others , what a heap of absurdities it is !
+-- which my mother , being on the watch , heard distinctly , and was sadly alarmed at .
+>>> am[0]                             
+('austen', 'melville', ['"', 'What', 'is', 'the', 'matter', 'now', '?"'])
+>>> am[2]
+('austen', 'melville', ['there', 'he', 'is', '.'])
+>>> gen_feats(am[0][2])
+{'contains-"': 1, 'contains-what': 1, 'contains-is': 1, 'contains-the': 1, 'contains-matter': 1, 'contains-now': 1, 'contains-?"': 1}
+>>> whosaid.prob_classify(gen_feats(am[0][2])).prob('melville')
+0.8275435597564982
+>>> am[1][2]
+['Come', ',', 'he', 'knows', 'himself', 'there', '.']
+>>> whosaid.prob_classify(gen_feats(am[1][2])).prob('melville')
+0.5578138418462254
+>>> am[2][2]
+['there', 'he', 'is', '.']
+>>> whosaid.prob_classify(gen_feats(am[2][2])).prob('melville')
+0.6008078675177236
+>>> am[3][2]
+['In', 'this', 'age', 'of', 'literature', ',', 'such', 'collections', 'on', 'a', 'very', 'grand', 'scale', 'are', 'not', 'uncommon', '.']
+>>> whosaid.prob_classify(gen_feats(am[3][2])).prob('melville')
+0.9705122073394814
+>>> am[4][2]
+['This', 'is', 'all', 'that', 'I', 'can', 'relate', 'of', 'the', 'how', ',', 'where', ',', 'and', 'when', '.']
+>>> whosaid.prob_classify(gen_feats(am[4][2])).prob('melville')
+0.5956928802160195
+>>> am[5][2]
+['The', 'stupidest', 'fellow', '!']
+>>> whosaid.prob_classify(gen_feats(am[5][2])).prob('melville')
+0.8095811018801172
+>>> am[6][2]
+['This', 'is', 'what', 'we', 'all', 'feel', '.']
+>>> whosaid.prob_classify(gen_feats(am[6][2])).prob('melville')
+0.5998700771690774
+>>> am[7][2]
+['Shall', 'I', 'call', 'upon', 'them', '?']
+>>> whosaid.prob_classify(gen_feats(am[7][2])).prob('melville')
+0.6556408967482348
+>>> am[8][2]
+['It', 'is', 'a', 'sort', 'of', 'prologue', 'to', 'the', 'play', ',', 'a', 'motto', 'to', 'the', 'chapter', ';', 'and', 'will', 'be', 'soon', 'followed', 'by', 'matter', '-', 'of', '-', 'fact', 'prose', '."']
+>>> whosaid.prob_classify(gen_feats(am[8][2])).prob('melville')
+0.9920235496289302
+>>> am[9][2]
+['shark', 'is', 'only', 'one', 'syllable', '.']
+>>> whosaid.prob_classify(gen_feats(am[9][2])).prob('melville')
+0.7587000028053951
+>>> am[10][2]
+['"', 'Three', 'o', "'", 'clock', 'yesterday', '!']
+>>> whosaid.prob_classify(gen_feats(am[10][2])).prob('melville')
+0.9021175690663855
+>>> am[11][2]
+['I', 'never', 'knew', 'days', 'fly', 'so', 'fast', '.']
+>>> whosaid.prob_classify(gen_feats(am[11][2])).prob('melville')
+0.7309451259887633
+>>> am[12][2]
+['he', 'is', 'off', '.']
+>>> whosaid.prob_classify(gen_feats(am[12][2])).prob('melville')
+0.6734505415265042
+>>> am[13][2]
+['What', 'an', 'air', 'of', 'probability', 'sometimes', 'runs', 'through', 'a', 'dream', '!']
+>>> whosaid.prob_classify(gen_feats(am[13][2])).prob('melville')
+0.9879944457649772
+>>> am[14][2]
+['And', 'so', 'excellent', 'in', 'the', 'Church', '!']
+>>> whosaid.prob_classify(gen_feats(am[14][2])).prob('melville')
+0.6977307000923476
+>>> am[15][2]
+['"', 'Both', 'sir', '!']
+>>> whosaid.prob_classify(gen_feats(am[15][2])).prob('melville')
+0.7371769422074301
+>>> am[16][2]
+['My', 'first', 'displays', 'the', 'wealth', 'and', 'pomp', 'of', 'kings', ',', 'Lords', 'of', 'the', 'earth', '!']
+>>> whosaid.prob_classify(gen_feats(am[16][2])).prob('melville')
+0.9883894699701071
+>>> am[17][2]
+['said', 'he', ',', 'offering', 'his', 'hand', '.']
+>>> whosaid.prob_classify(gen_feats(am[17][2])).prob('melville')
+0.684360668747964
+>>> am[18][2]
+['The', 'strength', 'of', 'the', 'song', 'falls', 'on', 'the', 'second', '."']
+>>> whosaid.prob_classify(gen_feats(am[18][2])).prob('melville')
+0.9113312747088789
+>>> am[19][2]
+['And', 'at', 'others', ',', 'what', 'a', 'heap', 'of', 'absurdities', 'it', 'is', '!']
+>>> whosaid.prob_classify(gen_feats(am[19][2])).prob('melville')
+0.8835679123758482
+>>> am[20][2]
+['--', 'which', 'my', 'mother', ',', 'being', 'on', 'the', 'watch', ',', 'heard', 'distinctly', ',', 'and', 'was', 'sadly', 'alarmed', 'at', '.']
+>>> whosaid.prob_classify(gen_feats(am[20][2])).prob('melville')
+0.8283091713061425
+>>> am[21][2]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+IndexError: list index out of range
+>>> 
+

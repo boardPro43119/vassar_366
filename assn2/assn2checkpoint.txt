@@ -1,0 +1,6 @@
+# Assignment 2: "Who Said It?" Checkpoint
+# CMPU 366, Spring 2021
+# Benjamin Prud'homme
+
+With random shuffling: accuracy 0.959
+With random seed 10: accuracy 0.951

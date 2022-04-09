@@ -1,0 +1,28 @@
+With n=500, select_features(X_train, y_train) outputs:
+
+1. User_tags 24.39
+2. Negative_Twitter_expressions 21.43
+3. Positive_Twitter_expressions 17.40
+4. Negative_emotions 15.45
+5. Positive_emotions 13.46
+6. Second_person_pronouns 9.12
+7. Negative 8.98
+8. Average_token_length 7.01
+9. Adverbs 5.39
+10. Positive 5.06
+
+With n=5500, select_features(X_train, y_train) outputs:
+
+1. Negative 309.20
+2. Positive_Twitter_expressions 241.66
+3. User_tags 185.89
+4. Negative_emotions 166.48
+5. Negative_Twitter_expressions 154.39
+6. Second_person_pronouns 96.19
+7. Positive 79.78
+8. First_person_pronouns 77.45
+9. Adverbs 70.71
+10. Positive_emotions 66.88
+
+Two features are in the top 3 at both n=500 and n=5500: User tags and positive Twitter expressions. For user tags, this might be because tags are very often used to share what someone else posted or worked on in a positive light. For positive Twitter expressions, this might be because Twitrratr compiled a list of very specifically positive things people tend to say on Twitter.
+
